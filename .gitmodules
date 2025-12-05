@@ -1,0 +1,3 @@
+[submodule "BSL"]
+	path = BSL
+	url = git@github.com:alterGNU/BashScriptLib.git
