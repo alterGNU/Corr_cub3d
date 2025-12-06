@@ -26,11 +26,11 @@ for arg in "${@}";do ARGS+=( "${arg}" );done
 SCRIPTNAME=${0##*\/}                                              # ☒ Script's name (no path)
 PARENT_DIR=$(cd $(dirname ${0}) && pwd)                           # ☒ Name of parent directory (TEST_DIR)
 MS_DIR=$(cd $(dirname ${PARENT_DIR}) && pwd)                      # ☒ Name of great-parent directory (CUB3D_DIR)
-PROGRAMM="${MS_DIR}/cub3d"                                    # ☒ Object's name to test (here our executable)
+PROGRAMM="${MS_DIR}/cub3D"                                        # ☒ Object's name to test (here our executable)
 LOG_DIR="${PARENT_DIR}/log/$(date +%Y_%m_%d/%Hh%Mm%Ss)"           # ☒ Name of the log folder
 LOG_FAIL="${LOG_DIR}/list_errors.log"                             # ☒ File contains list of function that failed
 DLOG_FILE="${LOG_DIR}/display.log"                                # ☒ File contains list of log to display
-BSL_DIR="${PARENT_DIR}/src/BSL"                                   # ☒ Path to BSL folder
+BSL_DIR="${PARENT_DIR}/BSL"                                   # ☒ Path to BSL folder
 BIN_DIR="${PARENT_DIR}/bin"                                       # ☒ Path to bin folder (test binary)
 LIBFT_A=$(find "${MS_DIR}" -type f -name "libft.a")               # ☒ libft.a static library
 CUB3D=$(find "${MS_DIR}" -type f -name "cub3d")           # ☒ cub3d program
@@ -48,7 +48,7 @@ UNIT=1                                                            # ☒ Run unit
 VALG=1                                                            # ☒ Run valgrind tools            
 # -[ LISTS ]--------------------------------------------------------------------------------------------------
 TEST_FILE=()                                                      # ☒ List of file.test to use to compare cub3d's return and bash --posix return's
-for arg in $(find "${PARENT_DIR}/src/tests" -type f -name "*.test");do TEST_FILE+=( "${arg}" );done
+for arg in $(find "${PARENT_DIR}/src" -type f -name "*.test");do TEST_FILE+=( "${arg}" );done
 FUN_NAME_PATTERN=( )                                              # ☒ List of function name pattern passed as argument
 FUN_ASKED_FOR=( )                                                 # ☒ List of function matching given pattern names as argument
 EXCLUDE_NORMI_FOLD=( "tests" "${PARENT_DIR##*\/}" )               # ☒ List of folder to be ignore by norminette
@@ -175,7 +175,7 @@ display_start()
     [[ ${HELP} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${R0}✘ Desable${E}" )
     [[ ${NORM} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${R0}✘ Desable${E}" )
     [[ ${OPTI} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${R0}✘ Desable${E}" )
-    [[ ${UNIT} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests : ${R0}✘ Desable${E}" )
+    [[ ${UNIT} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests     : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests     : ${R0}✘ Desable${E}" )
     [[ ${VALG} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}VALG${Y0} :Run valgrind                  : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}VALG${Y0} :Run valgrind                  : ${R0}✘ Desable${E}" )
                                                                                  
     print_in_box -t 2 -c y \
