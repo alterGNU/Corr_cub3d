@@ -135,6 +135,8 @@ int	main(int ac, char **av, char **ev)
 	nb_err += test(TEST_IS_VALID, "filename.ext", ".ext");// toto as no dot == no extension
 	nb_err += test(TEST_IS_VALID, "filename.ext.py", "py");// toto as no dot == no extension
 	nb_err += test(TEST_IS_VALID, "filename.ext.py", ".py");// toto as no dot == no extension
+	nb_err += test(TEST_IS_VALID, ".filename.ext.py", "py");// toto as no dot == no extension
+	nb_err += test(TEST_IS_VALID, ".filename.ext.py", ".py");// toto as no dot == no extension
 	print_sep(S1);
 
 	return (nb_err);

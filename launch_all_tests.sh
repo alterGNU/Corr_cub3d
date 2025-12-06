@@ -118,7 +118,6 @@ script_usage()
     echo -e "    |   ${BC0}\$HELP${E}   | ${V0}+${M0}h${E}, ${V0}--${M0}help      ${E}| ${R0}-${M0}h ${E},${R0}--no-${M0}help     ${E}| Display usage                        |"
     echo -e "    |   ${BC0}\$NORM${E}   | ${V0}+${M0}n${E}, ${V0}--${M0}norm      ${E}| ${R0}-${M0}n ${E},${R0}--no-${M0}norm     ${E}| Run norminette tools                 |"
     echo -e "    |   ${BC0}\$OPTI${E}   | ${V0}+${M0}o${E}, ${V0}--${M0}opti      ${E}| ${R0}-${M0}o ${E},${R0}--no-${M0}opti     ${E}| Select only fun with unitests        |"
-    echo -e "    |   ${BC0}\$TEST${E}   | ${V0}+${M0}t${E}, ${V0}--${M0}tests     ${E}| ${R0}-${M0}t ${E},${R0}--no-${M0}tests    ${E}| Run cub3d's tests                    |"
     echo -e "    |   ${BC0}\$UNIT${E}   | ${V0}+${M0}u${E}, ${V0}--${M0}unitests  ${E}| ${R0}-${M0}u ${E},${R0}--no-${M0}unitests ${E}| Run cub3d's functions unitests       |"
     echo -e "    |   ${BC0}\$VALG${E}   | ${V0}+${M0}v${E}, ${V0}--${M0}valgrind  ${E}| ${R0}-${M0}v ${E},${R0}--no-${M0}valgrind ${E}| Run valgrind tools                   |"
     exit ${exit_value}
