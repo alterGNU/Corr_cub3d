@@ -15,7 +15,6 @@
 #     |$HELP | +h --help     | -h --no-help     | Display usage                 |
 #     |$NORM | +n --norm     | -n --no-norm     | Run norminette tools          |
 #     |$OPTI | +o --opti     | -o --no-opti     | Select only fun with unitests |
-#     |$TEST | +t --tests    | -t --no-tests    | Run cub3d's tests             |
 #     |$UNIT | +u --unitests | -u --no-unitests | Run cub3d's fun. unitests     |
 #     |$VALG | +v --valgrind | -v --no-valgrind | Run valgrind tools            |
 # ============================================================================================================
@@ -45,7 +44,6 @@ FUNC=0                                                            # ☒ Run func
 HELP=0                                                            # ☒ Display usage                 
 NORM=1                                                            # ☒ Run norminette tools          
 OPTI=0                                                            # ☒ Select only fun with unitests 
-TEST=1                                                            # ☒ Run cub3d tests
 UNIT=1                                                            # ☒ Run unitests                  
 VALG=1                                                            # ☒ Run valgrind tools            
 # -[ LISTS ]--------------------------------------------------------------------------------------------------
@@ -177,7 +175,6 @@ display_start()
     [[ ${HELP} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${R0}✘ Desable${E}" )
     [[ ${NORM} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${R0}✘ Desable${E}" )
     [[ ${OPTI} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${R0}✘ Desable${E}" )
-    [[ ${TEST} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}TEST${Y0} :Run cub3d's tests         : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}TEST${Y0} :Run cub3d's tests         : ${R0}✘ Desable${E}" )
     [[ ${UNIT} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests : ${R0}✘ Desable${E}" )
     [[ ${VALG} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}VALG${Y0} :Run valgrind                  : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}VALG${Y0} :Run valgrind                  : ${R0}✘ Desable${E}" )
                                                                                  
@@ -612,232 +609,204 @@ display_resume()
     else
         args+=( "  🔸 ${YU}STEP 5-EXEC)${E}                                        ${G0} ✖️  Step Desabled${E}" )
     fi
-    # -[ TEST ] ----------------------------------------------------------------------------------------------
-    if [[ ${TEST} -gt 0 ]];then
-        args+=( "  🔸 ${YU}STEP 6-TESTS)${E}                                       ${V0} ✅ Step Enable${E}" )
-        for filetest in ${TEST_FILE[@]};do
-            local filename=${filetest##*\/}
-            local res_name=${filename%%\.test*}
-            local path_diff=$(print_shorter_path "${LOG_DIR}/tests/${res_name}.diff")
-            if [[ -f "${LOG_DIR}/tests/${res_name}.diff" ]];then
-                args+=( "    ${G0}✘ ${res_name}:👉${M0}${path_diff}${E}")
-            else
-                args+=( "    ${V0}✓ ${res_name}")
-            fi
-        done
-    else
-        args+=( "  🔸 ${YU}STEP 6-TESTS)${E}                                       ${G0} ✖️  Step Desabled${E}" )
-    fi
     print_in_box -t 2 -c y "${args[@]}"
 }
 
 # ============================================================================================================
 # MAIN
 # ============================================================================================================
-## =[ HANDLE SCRIPTS OPTIONS ]=================================================================================
-#for arg in "${ARGS[@]}";do
-#    shift
-#    if [[ "$arg" =~ ^(\+\+|--).*$ ]];then
-#        case "${arg}" in
-#            --[Aa]ll ) BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;NORM=1;OPTI=1;TEST=1;UNIT=1;VALG=1;;
-#            --[Nn]o-[Aa]ll ) BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;NORM=0;OPTI=0;TEST=0;UNIT=0;VALG=0;;
-#            --[Bb]uil[td]-in ) BUIN=$(( BUIN + 1 )) ;;
-#            --[Nn]o-[Bb]uil[td]-in ) BUIN=$(max 0 $(( BUIN - 1 ))) ;;
-#            --[Cc]omp ) COMP=$(( COMP + 1 )) ;;
-#            --[Nn]o-[Cc]omp ) COMP=$(max 0 $(( COMP - 1 ))) ;;
-#            --[Dd]log ) DLOG=$(( DLOG + 1 )) ;;
-#            --[Nn]o-[Dd]log ) DLOG=$(max 0 $(( DLOG - 1 ))) ;;
-#            --[Ee]xec ) EXEC=$(( EXEC + 1 )) ;;
-#            --[Nn]o-[Ee]xec ) EXEC=$(max 0 $(( EXEC - 1 ))) ;;
-#            --[Ff]uncheck ) FUNC=$(( FUNC + 1 )) ;;
-#            --[Nn]o-[fF]uncheck ) FUNC=$(max 0 $(( FUNC - 1 ))) ;;
-#            --[Hh]elp ) HELP=$(( HELP + 1 )) ;;
-#            --[Nn]o-[Hh]elp ) HELP=$(max 0 $(( HELP + 1 ))) ;;
-#            --[Nn]orm ) NORM=$(( NORM + 1 )) ;;
-#            --[Nn]o-[Nn]orm ) NORM=$(max 0 $(( NORM - 1 ))) ;;
-#            --[Oo]pti ) OPTI=$(( OPTI + 1 )) ;;
-#            --[Nn]o-[Oo]pti ) OPTI=$(max 0 $(( OPTI - 1 ))) ;;
-#            --[Tt]ests ) TEST=$(( TEST + 1 )) ;;
-#            --[Nn]o-[Tt]ests ) TEST=$(max 0 $(( TEST - 1 ))) ;;
-#            --[Uu]nitests ) UNIT=$(( UNIT + 1 )) ;;
-#            --[Nn]o-[Uu]nitests ) UNIT=$(max 0 $(( UNIT - 1 ))) ;;
-#            --[Vv]algrind ) VALG=$(( VALG + 1 )) ;;
-#            --[Nn]o-[Vv]algrind ) VALG=$(max 0 $(( VALG - 1 ))) ;;
-#            *) script_usage "${R0}unknown option:${RU}${arg}${E}" 4 ;;
-#        esac
-#    elif [[ "${arg}" =~ ^[+-][^+-]*$ ]];then
-#        symb=${arg:0:1}
-#        for i in $(seq 1 $((${#arg} - 1)));do
-#            char="${arg:i:1}"
-#            case "${char}" in
-#                [Aa] ) [[ "${symb}" == "+" ]] && { BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;NORM=1;OPTI=1;TEST=1;UNIT=1;VALG=1;} || { BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;NORM=0;OPTI=0;TEST=0;UNIT=0;VALG=0;} ;;
-#                [Bb] ) [[ "${symb}" == "+" ]] && BUIN=$(( BUIN + 1 )) || BUIN=$(max 0 $(( BUIN - 1 ))) ;;
-#                [Cc] ) [[ "${symb}" == "+" ]] && COMP=$(( COMP + 1 )) || COMP=$(max 0 $(( COMP - 1 ))) ;;
-#                [Dd] ) [[ "${symb}" == "+" ]] && DLOG=$(( DLOG + 1 )) || DLOG=$(max 0 $(( DLOG - 1 ))) ;;
-#                [Ee] ) [[ "${symb}" == "+" ]] && EXEC=$(( EXEC + 1 )) || EXEC=$(max 0 $(( EXEC - 1 ))) ;;
-#                [Ff] ) [[ "${symb}" == "+" ]] && FUNC=$(( FUNC + 1 )) || FUNC=$(max 0 $(( FUNC - 1 ))) ;;
-#                [Hh] ) [[ "${symb}" == "+" ]] && HELP=$(( HELP + 1 )) || HELP=$(max 0 $(( HELP - 1 ))) ;;
-#                [Nn] ) [[ "${symb}" == "+" ]] && NORM=$(( NORM + 1 )) || NORM=$(max 0 $(( NORM - 1 ))) ;;
-#                [Oo] ) [[ "${symb}" == "+" ]] && OPTI=$(( OPTI + 1 )) || OPTI=$(max 0 $(( OPTI - 1 ))) ;;
-#                [Tt] ) [[ "${symb}" == "+" ]] && TEST=$(( TEST + 1 )) || TEST=$(max 0 $(( TEST - 1 ))) ;;
-#                [Uu] ) [[ "${symb}" == "+" ]] && UNIT=$(( UNIT + 1 )) || UNIT=$(max 0 $(( UNIT - 1 ))) ;;
-#                [Vv] ) [[ "${symb}" == "+" ]] && VALG=$(( VALG + 1 )) || VALG=$(max 0 $(( VALG - 1 ))) ;;
-#                *) script_usage "${R0}unknown option:${RU}${symb}${char}${E}" 5 ;;
-#            esac
-#        done
-#    else
-#        FUN_NAME_PATTERN+=( "${arg}" )
-#        continue
-#    fi
-#done
-## =[ HELP ]===================================================================================================
-#[[ ${HELP} -ne 0 ]] && script_usage
-## =[ CHECK IF LIBFT.A FOUNDED ]===============================================================================
-#[[ -x ${PROGRAMM} ]] || { script_usage "${R0}Programm not found: No ${BC0}${PROGRAMM}${R0} found.${E}" 2; }
-## =[ CREATE LOG_DIR ]=========================================================================================
-#[[ ! -d ${LOG_DIR} ]] && mkdir -p ${LOG_DIR}
-## =[ SET LISTS ]==============================================================================================
-## -[ CHECK IF OS KNOWN ]--------------------------------------------------------------------------------------
-#[[ ( "$(uname)" != "Linux" ) && ( "$(uname)" != "Darwin" ) ]] && { echo "${R0}UNKNOWN OS${E}" && exit 3 ; }
-## -[ SET LIBFT_FUN ]------------------------------------------------------------------------------------------
-#if file "${LIBFT_A}" | grep -qE 'relocatable|executable|shared object|ar archive';then
-#    for fun in $(nm -g "${LIBFT_A}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
-#        if [[ ! "${LIBFT_FUN[@]}" =~ "${fun}" ]];then
-#            [[ "$(uname)" == "Linux" ]] && LIBFT_FUN+=( "${fun}" ) || LIBFT_FUN+=( "${fun#*\_}" )
-#        fi
-#    done
-#else
-#    echo -e "LIBFT_A=${BC0}${LIBFT_A}${E} is not an object file\033[m"
-#fi
-## -[ SET HOMEMADE_FUNUSED & BUILTIN_FUNUSED ]-----------------------------------------------------------------
-#if file "${PROGRAMM}" | grep -qE 'relocatable|executable|shared object|ar archive';then
-#    if [[ "$(uname)" == "Linux" ]];then
-#        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
-#            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun}" && " ${fun} " != " main " ]];then
-#                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
-#            else
-#                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]] && HOMEMADE_FUNUSED+=( "${fun}" )
-#            fi
-#        done
-#        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
-#            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]];then
-#                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
-#            fi
-#        done
-#    else
-#        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
-#            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun#*_}" && " ${fun#*_} " != " main " ]];then
-#                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
-#            else
-#                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]] && HOMEMADE_FUNUSED+=( "${fun#*_}" )
-#            fi
-#        done
-#        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
-#            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]];then
-#                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
-#            fi
-#        done
-#    fi
-#else
-#    echo -e "${BC0}${PROGRAMM}${E} is not an object file\033[m"
-#fi
-## -[ SET FUN_TO_TEST && FUN_WITH_UNITEST ]--------------------------------------------------------------------
-#if [[ ${#FUN_NAME_PATTERN[@]} -eq 0 ]];then
-#    FUN_TO_TEST=($(printf "%s\n" "${HOMEMADE_FUNUSED[@]}" | grep -vxF -f <(printf "%s\n" "${LIBFT_FUN[@]}" "${FUN_TO_EXCLUDE[@]}")))
-#    for fun in "${FUN_TO_TEST[@]}";do [[ -n "$(find "${PARENT_DIR}/src/unitests/" -type f -name *"${fun}.c")" ]] && FUN_WITH_UNITEST+=( "${fun}" );done
-#else
-#    for fun in "${FUN_NAME_PATTERN[@]}";do
-#        for file in $(find "${PARENT_DIR}/src/unitests" -type f -name *"${fun}"*.c);do
-#            filename=$(basename ${file})
-#            filename=${filename##*\test_}
-#            FUN_ASKED_FOR+=( "${filename%%\.c*}" )
-#        done
-#    done
-#fi
-## =[ START ]==================================================================================================
+# =[ HANDLE SCRIPTS OPTIONS ]=================================================================================
+for arg in "${ARGS[@]}";do
+    shift
+    if [[ "$arg" =~ ^(\+\+|--).*$ ]];then
+        case "${arg}" in
+            --[Aa]ll ) BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;NORM=1;OPTI=1;UNIT=1;VALG=1;;
+            --[Nn]o-[Aa]ll ) BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;NORM=0;OPTI=0;UNIT=0;VALG=0;;
+            --[Bb]uil[td]-in ) BUIN=$(( BUIN + 1 )) ;;
+            --[Nn]o-[Bb]uil[td]-in ) BUIN=$(max 0 $(( BUIN - 1 ))) ;;
+            --[Cc]omp ) COMP=$(( COMP + 1 )) ;;
+            --[Nn]o-[Cc]omp ) COMP=$(max 0 $(( COMP - 1 ))) ;;
+            --[Dd]log ) DLOG=$(( DLOG + 1 )) ;;
+            --[Nn]o-[Dd]log ) DLOG=$(max 0 $(( DLOG - 1 ))) ;;
+            --[Ee]xec ) EXEC=$(( EXEC + 1 )) ;;
+            --[Nn]o-[Ee]xec ) EXEC=$(max 0 $(( EXEC - 1 ))) ;;
+            --[Ff]uncheck ) FUNC=$(( FUNC + 1 )) ;;
+            --[Nn]o-[fF]uncheck ) FUNC=$(max 0 $(( FUNC - 1 ))) ;;
+            --[Hh]elp ) HELP=$(( HELP + 1 )) ;;
+            --[Nn]o-[Hh]elp ) HELP=$(max 0 $(( HELP + 1 ))) ;;
+            --[Nn]orm ) NORM=$(( NORM + 1 )) ;;
+            --[Nn]o-[Nn]orm ) NORM=$(max 0 $(( NORM - 1 ))) ;;
+            --[Oo]pti ) OPTI=$(( OPTI + 1 )) ;;
+            --[Nn]o-[Oo]pti ) OPTI=$(max 0 $(( OPTI - 1 ))) ;;
+            --[Uu]nitests ) UNIT=$(( UNIT + 1 )) ;;
+            --[Nn]o-[Uu]nitests ) UNIT=$(max 0 $(( UNIT - 1 ))) ;;
+            --[Vv]algrind ) VALG=$(( VALG + 1 )) ;;
+            --[Nn]o-[Vv]algrind ) VALG=$(max 0 $(( VALG - 1 ))) ;;
+            *) script_usage "${R0}unknown option:${RU}${arg}${E}" 4 ;;
+        esac
+    elif [[ "${arg}" =~ ^[+-][^+-]*$ ]];then
+        symb=${arg:0:1}
+        for i in $(seq 1 $((${#arg} - 1)));do
+            char="${arg:i:1}"
+            case "${char}" in
+                [Aa] ) [[ "${symb}" == "+" ]] && { BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;NORM=1;OPTI=1;UNIT=1;VALG=1;} || { BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;NORM=0;OPTI=0;UNIT=0;VALG=0;} ;;
+                [Bb] ) [[ "${symb}" == "+" ]] && BUIN=$(( BUIN + 1 )) || BUIN=$(max 0 $(( BUIN - 1 ))) ;;
+                [Cc] ) [[ "${symb}" == "+" ]] && COMP=$(( COMP + 1 )) || COMP=$(max 0 $(( COMP - 1 ))) ;;
+                [Dd] ) [[ "${symb}" == "+" ]] && DLOG=$(( DLOG + 1 )) || DLOG=$(max 0 $(( DLOG - 1 ))) ;;
+                [Ee] ) [[ "${symb}" == "+" ]] && EXEC=$(( EXEC + 1 )) || EXEC=$(max 0 $(( EXEC - 1 ))) ;;
+                [Ff] ) [[ "${symb}" == "+" ]] && FUNC=$(( FUNC + 1 )) || FUNC=$(max 0 $(( FUNC - 1 ))) ;;
+                [Hh] ) [[ "${symb}" == "+" ]] && HELP=$(( HELP + 1 )) || HELP=$(max 0 $(( HELP - 1 ))) ;;
+                [Nn] ) [[ "${symb}" == "+" ]] && NORM=$(( NORM + 1 )) || NORM=$(max 0 $(( NORM - 1 ))) ;;
+                [Oo] ) [[ "${symb}" == "+" ]] && OPTI=$(( OPTI + 1 )) || OPTI=$(max 0 $(( OPTI - 1 ))) ;;
+                [Uu] ) [[ "${symb}" == "+" ]] && UNIT=$(( UNIT + 1 )) || UNIT=$(max 0 $(( UNIT - 1 ))) ;;
+                [Vv] ) [[ "${symb}" == "+" ]] && VALG=$(( VALG + 1 )) || VALG=$(max 0 $(( VALG - 1 ))) ;;
+                *) script_usage "${R0}unknown option:${RU}${symb}${char}${E}" 5 ;;
+            esac
+        done
+    else
+        FUN_NAME_PATTERN+=( "${arg}" )
+        continue
+    fi
+done
+# =[ HELP ]===================================================================================================
+[[ ${HELP} -ne 0 ]] && script_usage
+# =[ CHECK IF LIBFT.A FOUNDED ]===============================================================================
+[[ -x ${PROGRAMM} ]] || { script_usage "${R0}Programm not found: No ${BC0}${PROGRAMM}${R0} found.${E}" 2; }
+# =[ CREATE LOG_DIR ]=========================================================================================
+[[ ! -d ${LOG_DIR} ]] && mkdir -p ${LOG_DIR}
+# =[ SET LISTS ]==============================================================================================
+# -[ CHECK IF OS KNOWN ]--------------------------------------------------------------------------------------
+[[ ( "$(uname)" != "Linux" ) && ( "$(uname)" != "Darwin" ) ]] && { echo "${R0}UNKNOWN OS${E}" && exit 3 ; }
+# -[ SET LIBFT_FUN ]------------------------------------------------------------------------------------------
+if file "${LIBFT_A}" | grep -qE 'relocatable|executable|shared object|ar archive';then
+    for fun in $(nm -g "${LIBFT_A}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+        if [[ ! "${LIBFT_FUN[@]}" =~ "${fun}" ]];then
+            [[ "$(uname)" == "Linux" ]] && LIBFT_FUN+=( "${fun}" ) || LIBFT_FUN+=( "${fun#*\_}" )
+        fi
+    done
+else
+    echo -e "LIBFT_A=${BC0}${LIBFT_A}${E} is not an object file\033[m"
+fi
+# -[ SET HOMEMADE_FUNUSED & BUILTIN_FUNUSED ]-----------------------------------------------------------------
+if file "${PROGRAMM}" | grep -qE 'relocatable|executable|shared object|ar archive';then
+    if [[ "$(uname)" == "Linux" ]];then
+        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun}" && " ${fun} " != " main " ]];then
+                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
+            else
+                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]] && HOMEMADE_FUNUSED+=( "${fun}" )
+            fi
+        done
+        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
+            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]];then
+                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
+            fi
+        done
+    else
+        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun#*_}" && " ${fun#*_} " != " main " ]];then
+                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
+            else
+                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]] && HOMEMADE_FUNUSED+=( "${fun#*_}" )
+            fi
+        done
+        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
+            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]];then
+                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
+            fi
+        done
+    fi
+else
+    echo -e "${BC0}${PROGRAMM}${E} is not an object file\033[m"
+fi
+# -[ SET FUN_TO_TEST && FUN_WITH_UNITEST ]--------------------------------------------------------------------
+if [[ ${#FUN_NAME_PATTERN[@]} -eq 0 ]];then
+    FUN_TO_TEST=($(printf "%s\n" "${HOMEMADE_FUNUSED[@]}" | grep -vxF -f <(printf "%s\n" "${LIBFT_FUN[@]}" "${FUN_TO_EXCLUDE[@]}")))
+    for fun in "${FUN_TO_TEST[@]}";do [[ -n "$(find "${PARENT_DIR}/src/unitests/" -type f -name *"${fun}.c")" ]] && FUN_WITH_UNITEST+=( "${fun}" );done
+else
+    for fun in "${FUN_NAME_PATTERN[@]}";do
+        for file in $(find "${PARENT_DIR}/src/unitests" -type f -name *"${fun}"*.c);do
+            filename=$(basename ${file})
+            filename=${filename##*\test_}
+            FUN_ASKED_FOR+=( "${filename%%\.c*}" )
+        done
+    done
+fi
+# =[ START ]==================================================================================================
 display_start
-## =[ STEPS ]==================================================================================================
-## -[ STEP 1 | CHECK-FUNUSED ]---------------------------------------------------------------------------------
-#if [[ ${BUIN} -gt 0 ]];then
-#    print_in_box -t 2 -c y \
-#        "      ${Y0}   ___   _                 _       ___                 _   _                 _  ${E}" \
-#        "      ${Y0}  / __| | |_    ___   __  | |__   | __|  _  _   _ _   | | | |  ___  ___   __| | ${E}" \
-#        "      ${Y0} | (__  | ' \  / -_) / _| | / /   | _|  | || | | ' \  | |_| | (_-< / -_) / _' | ${E}" \
-#        "      ${Y0}  \___| |_||_| \___| \__| |_\_\   |_|    \_,_| |_||_|  \___/  /__/ \___| \__,_| ${E}" \
-#        "   "
-#    exec_anim_in_box "check_funused" "Display built-in function used"
-#fi
-## -[ STEP 2 | NORM-CHECK ]------------------------------------------------------------------------------------
-#if [[ ${NORM} -gt 0 ]];then
-#    print_in_box -t 2 -c y \
-#    " ${Y0}                    _  _                       _                _     _          ${E}" \
-#    " ${Y0}                   | \| |  ___   _ _   _ __   (_)  _ _    ___  | |_  | |_   ___  ${E}" \
-#    " ${Y0}                   | .' | / _ \ | '_| | '  \  | | | ' \  / -_) |  _| |  _| / -_) ${E}" \
-#    " ${Y0}                   |_|\_| \___/ |_|   |_|_|_| |_| |_||_| \___|  \__|  \__| \___| ${E}"
-#    exec_anim_in_box "check42_norminette ${MS_DIR}" "Check Norminette"
-#    res_normi=${?}
-#fi
-## -[ STEP 3.1 | UNITESTS ]------------------------------------------------------------------------------------
-#if [[ ${UNIT} -gt 0 ]];then
-#    print_in_box -t 2 -c y \
-#    " ${Y0}                     _   _   _  _   ___   _____   ___   ___   _____   ___                ${E}" \
-#    " ${Y0}                    | | | | | \| | |_ _| |_   _| | __| / __| |_   _| / __|               ${E}" \
-#    " ${Y0}                    | |_| | | .' |  | |    | |   | _|  \__ \   | |   \__ \               ${E}" \
-#    " ${Y0}                     \___/  |_|\_| |___|   |_|   |___| |___/   |_|   |___/               ${E}"
-#    if [[ ${#FUN_NAME_PATTERN[@]} -gt 0 ]];then
-#        exec_anim_in_box "launch_unitests FUN_ASKED_FOR" "Launch Unitests on cub3d's functions given as script argument"
-#    else
-#        if [[ ${OPTI} -gt 0 ]];then
-#            exec_anim_in_box "launch_unitests FUN_WITH_UNITEST" "Launch Unitests on cub3d's functions with unitests"
-#        else
-#            exec_anim_in_box "launch_unitests FUN_TO_TEST" "Launch Unitests on cub3d's functions"
-#        fi
-#    fi
-#fi
-## -[ STEP 3.2 | DISPLAY LOG FILES ]---------------------------------------------------------------------------
-#if [[ ${DLOG} -gt 0 ]];then
-#    print_in_box -t 2 -c y \
-#    " ${Y0}    ___    _               _                   _                   ___   _   _            ${E}" \
-#    " ${Y0}   |   \  (_)  ___  _ __  | |  __ _   _  _    | |     ___   __ _  | __| (_) | |  ___   ___${E}" \
-#    " ${Y0}   | |) | | | (_-< | '_ \ | | / _' | | || |   | |__  / _ \ / _' | | _|  | | | | / -_) (_-<${E}" \
-#    " ${Y0}   |___/  |_| /__/ | .__/ |_| \__,_|  \_, |   |____| \___/ \__, | |_|   |_| |_| \___| /__/${E}" \
-#    " ${Y0}                   |_|                |__/                 |___/                          ${E}"
-#    while IFS= read -r log_file || [ -n "$log_file" ]; do
-#        if [ -f "$log_file" ]; then
-#            fun_name=$(dirname ${log_file})
-#            fun_name="${Y0}${fun_name##*\/}()${E}"
-#            print_box_title -t 1 -c m "${fun_name}"
-#            while IFS= read -r log_file_line; do
-#                echol -i 0 -c m -t 1 "${log_file_line}"
-#            done < "${log_file}"
-#            print_last -t 1 -c m
-#        else
-#            echo "File not found: $log_file"
-#        fi
-#    done < "$DLOG_FILE"
-#fi
-## -[ STEP 4 | FUNCHECK ]--------------------------------------------------------------------------------------
-#[[ ${FUNC} -gt 0 ]] && launch_funcheck
-## -[ STEP 5 | EXEC  ]-----------------------------------------------------------------------------------------
-#if [[ ${EXEC} -gt 0 ]];then
-#    if [[ ${#FUN_NAME_PATTERN[@]} -gt 0 ]];then
-#        exec_binary "FUN_ASKED_FOR"
-#    else
-#        if [[ ${OPTI} -gt 0 ]];then
-#            exec_binary "FUN_WITH_UNITEST"
-#        else
-#            exec_binary "FUN_TO_TEST"
-#        fi
-#    fi
-#fi
-## -[ STEP 6 | TESTS ]-----------------------------------------------------------------------------------------
-#if [[ ${TEST} -gt 0 ]];then
-#    print_in_box -t 2 -c y \
-#    " ${Y0}  __  __   _          _        _            _   _   _          _____              _        ${E}" \
-#    " ${Y0} |  \/  | (_)  _ _   (_)  ___ | |_    ___  | | | | ( )  ___   |_   _|  ___   ___ | |_   ___${E}" \
-#    " ${Y0} | |\/| | | | | ' \  | | (_-< | ' \  / -_) | | | | |/  (_-<     | |   / -_) (_-< |  _| (_-<${E}" \
-#    " ${Y0} |_|  |_| |_| |_||_| |_| /__/ |_||_| \___| |_| |_|     /__/     |_|   \___| /__/  \__| /__/${E}"
-#    exec_anim_in_box exec_tests "${Y0}cub3d VS bash --posix${E}"
-#fi
-## =[ STOP ]===================================================================================================
-#display_resume "cub3d's tests"
+# =[ STEPS ]==================================================================================================
+# -[ STEP 1 | CHECK-FUNUSED ]---------------------------------------------------------------------------------
+if [[ ${BUIN} -gt 0 ]];then
+    print_in_box -t 2 -c y \
+        "      ${Y0}   ___   _                 _       ___                 _   _                 _  ${E}" \
+        "      ${Y0}  / __| | |_    ___   __  | |__   | __|  _  _   _ _   | | | |  ___  ___   __| | ${E}" \
+        "      ${Y0} | (__  | ' \  / -_) / _| | / /   | _|  | || | | ' \  | |_| | (_-< / -_) / _' | ${E}" \
+        "      ${Y0}  \___| |_||_| \___| \__| |_\_\   |_|    \_,_| |_||_|  \___/  /__/ \___| \__,_| ${E}" \
+        "   "
+    exec_anim_in_box "check_funused" "Display built-in function used"
+fi
+# -[ STEP 2 | NORM-CHECK ]------------------------------------------------------------------------------------
+if [[ ${NORM} -gt 0 ]];then
+    print_in_box -t 2 -c y \
+    " ${Y0}                    _  _                       _                _     _          ${E}" \
+    " ${Y0}                   | \| |  ___   _ _   _ __   (_)  _ _    ___  | |_  | |_   ___  ${E}" \
+    " ${Y0}                   | .' | / _ \ | '_| | '  \  | | | ' \  / -_) |  _| |  _| / -_) ${E}" \
+    " ${Y0}                   |_|\_| \___/ |_|   |_|_|_| |_| |_||_| \___|  \__|  \__| \___| ${E}"
+    exec_anim_in_box "check42_norminette ${MS_DIR}" "Check Norminette"
+    res_normi=${?}
+fi
+# -[ STEP 3.1 | UNITESTS ]------------------------------------------------------------------------------------
+if [[ ${UNIT} -gt 0 ]];then
+    print_in_box -t 2 -c y \
+    " ${Y0}                     _   _   _  _   ___   _____   ___   ___   _____   ___                ${E}" \
+    " ${Y0}                    | | | | | \| | |_ _| |_   _| | __| / __| |_   _| / __|               ${E}" \
+    " ${Y0}                    | |_| | | .' |  | |    | |   | _|  \__ \   | |   \__ \               ${E}" \
+    " ${Y0}                     \___/  |_|\_| |___|   |_|   |___| |___/   |_|   |___/               ${E}"
+    if [[ ${#FUN_NAME_PATTERN[@]} -gt 0 ]];then
+        exec_anim_in_box "launch_unitests FUN_ASKED_FOR" "Launch Unitests on cub3d's functions given as script argument"
+    else
+        if [[ ${OPTI} -gt 0 ]];then
+            exec_anim_in_box "launch_unitests FUN_WITH_UNITEST" "Launch Unitests on cub3d's functions with unitests"
+        else
+            exec_anim_in_box "launch_unitests FUN_TO_TEST" "Launch Unitests on cub3d's functions"
+        fi
+    fi
+fi
+# -[ STEP 3.2 | DISPLAY LOG FILES ]---------------------------------------------------------------------------
+if [[ ${DLOG} -gt 0 ]];then
+    print_in_box -t 2 -c y \
+    " ${Y0}    ___    _               _                   _                   ___   _   _            ${E}" \
+    " ${Y0}   |   \  (_)  ___  _ __  | |  __ _   _  _    | |     ___   __ _  | __| (_) | |  ___   ___${E}" \
+    " ${Y0}   | |) | | | (_-< | '_ \ | | / _' | | || |   | |__  / _ \ / _' | | _|  | | | | / -_) (_-<${E}" \
+    " ${Y0}   |___/  |_| /__/ | .__/ |_| \__,_|  \_, |   |____| \___/ \__, | |_|   |_| |_| \___| /__/${E}" \
+    " ${Y0}                   |_|                |__/                 |___/                          ${E}"
+    if [ -f "$log_file" ]; then
+        while IFS= read -r log_file || [ -n "$log_file" ]; do
+            fun_name=$(dirname ${log_file})
+            fun_name="${Y0}${fun_name##*\/}()${E}"
+            print_box_title -t 1 -c m "${fun_name}"
+            while IFS= read -r log_file_line; do
+                echol -i 0 -c m -t 1 "${log_file_line}"
+            done < "${log_file}"
+            print_last -t 1 -c m
+        done < "$DLOG_FILE"
+        else
+            echo "File not found: $log_file"
+        fi
+fi
+# -[ STEP 4 | FUNCHECK ]--------------------------------------------------------------------------------------
+[[ ${FUNC} -gt 0 ]] && launch_funcheck
+# -[ STEP 5 | EXEC  ]-----------------------------------------------------------------------------------------
+if [[ ${EXEC} -gt 0 ]];then
+    if [[ ${#FUN_NAME_PATTERN[@]} -gt 0 ]];then
+        exec_binary "FUN_ASKED_FOR"
+    else
+        if [[ ${OPTI} -gt 0 ]];then
+            exec_binary "FUN_WITH_UNITEST"
+        else
+            exec_binary "FUN_TO_TEST"
+        fi
+    fi
+fi
+# =[ STOP ]===================================================================================================
+display_resume "cub3d's tests"
