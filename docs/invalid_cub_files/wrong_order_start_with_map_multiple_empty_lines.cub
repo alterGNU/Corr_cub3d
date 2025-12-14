@@ -20,10 +20,10 @@ C 225,30,0
 
 
 
-NO ./tests/docs/images/valid_images/NO.xpm
-SO ./tests/docs/images/valid_images/SO.xpm
+NO ./tests/docs/images/NO.xpm
+SO ./tests/docs/images/SO.xpm
 
 
-WE ./tests/docs/images/valid_images/WE.xpm
-EA ./tests/docs/images/valid_images/EA.xpm
+WE ./tests/docs/images/WE.xpm
+EA ./tests/docs/images/EA.xpm
 

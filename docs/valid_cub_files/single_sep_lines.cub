@@ -1,11 +1,11 @@
 
-NO ./tests/docs/images/valid_images/NO.xpm
+NO ./tests/docs/images/NO.xpm
 
-SO ./tests/docs/images/valid_images/SO.xpm
+SO ./tests/docs/images/SO.xpm
 
-WE ./tests/docs/images/valid_images/WE.xpm
+WE ./tests/docs/images/WE.xpm
 
-EA ./tests/docs/images/valid_images/EA.xpm
+EA ./tests/docs/images/EA.xpm
 
 F 220,100,0
     

@@ -1,7 +1,7 @@
-NO ./tests/docs/images/valid_images/NO.xpm
-SO ./tests/docs/images/valid_images/SO.xpm
-WE ./tests/docs/images/valid_images/WE.xpm
-EA ./tests/docs/images/valid_images/EA.xpm
+NO ./tests/docs/images/NO.xpm
+SO ./tests/docs/images/SO.xpm
+WE ./tests/docs/images/WE.xpm
+EA ./tests/docs/images/EA.xpm
 
 F 220,100,0
 225,30,0
