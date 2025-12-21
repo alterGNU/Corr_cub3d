@@ -1,0 +1,15 @@
+NO ./tests/docs/images/NO.xpm
+SO ./tests/docs/images/SO.xpm
+WE ./tests/docs/images/WE.xpm
+EA ./tests/docs/images/EA.xpm
+
+F 220,100,0
+C 225,30,0
+
+           
+  1111111  
+  1000001  
+  100W001  
+  1000001  
+  1111111  
+           
