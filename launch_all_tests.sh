@@ -30,10 +30,11 @@ PROGRAMM="${MS_DIR}/cub3D"                                        # ☒ Object's
 LOG_DIR="${PARENT_DIR}/log/$(date +%Y_%m_%d/%Hh%Mm%Ss)"           # ☒ Name of the log folder
 LOG_FAIL="${LOG_DIR}/list_errors.log"                             # ☒ File contains list of function that failed
 DLOG_FILE="${LOG_DIR}/display.log"                                # ☒ File contains list of log to display
-BSL_DIR="${PARENT_DIR}/BSL"                                   # ☒ Path to BSL folder
+BSL_DIR="${PARENT_DIR}/BSL"                                       # ☒ Path to BSL folder
 BIN_DIR="${PARENT_DIR}/bin"                                       # ☒ Path to bin folder (test binary)
 LIBFT_A=$(find "${MS_DIR}" -type f -name "libft.a")               # ☒ libft.a static library
-CUB3D=$(find "${MS_DIR}" -type f -name "cub3d")           # ☒ cub3d program
+MLX_A=$(find "${MS_DIR}" -type f -name "libmlx.a")                # ☒ libmlx.a static library
+CUB3D=$(find "${MS_DIR}" -type f -name "cub3d")                   # ☒ cub3d program
 # -[ SCRIPT OPTION ]------------------------------------------------------------------------------------------
 NB_ARG="${#}"                                                     # ☒ Number of script's arguments
 BUIN=1                                                            # ☒ Check fun. used not forbidden 
@@ -65,7 +66,7 @@ OBJ=( )                                                           # ☒ List of 
 # add to OBJ list all '.o' files founded in cub3d/build/ folders that do not contains a main() function
 for obj in $(find ${MS_DIR}/build -type f -name '*.o');do if ! nm "${obj}" 2>/dev/null | grep -qE 'T [_]*main';then OBJ+=( "${obj}" );fi;done
 # -[ COMMANDS ]-----------------------------------------------------------------------------------------------
-CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include ${OBJ[@]}"
+CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]}"
 VAL_ERR=42
 VALGRIND="valgrind --leak-check=full --track-fds=yes --show-leak-kinds=all --error-exitcode=${VAL_ERR}"
 # -[ LAYOUT ]-------------------------------------------------------------------------------------------------
@@ -279,7 +280,7 @@ launch_unitests()
                 echo -en " ${BC0} ⤷${E} ⚙️  ${GU}Compilation:${E}"
                 # cases where compilation needed: (1:no binary),(2:unitests source code newer than bin),(3:text exist and newer than binary), (4:libft.a newer than bin), (5:cub3d newer than bin)
                 if [[ ( "${COMP}" -gt 0 ) || ( ! -f "${exe}" ) || ( "${test_main}" -nt "${exe}" ) || ( -n "${test_txt}" && "${test_txt}" -nt "${exe}" ) || ( "${LIBFT_A}" -nt "${exe}" ) || ( "${CUB3D}" -nt "${exe}" ) ]];then
-                    local res_compile=$(${CC} ${test_main} ${LIBFT_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
+                    local res_compile=$(${CC} ${test_main} ${LIBFT_A} ${MLX_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
                     if [[ "${res_compile}" -eq 0 ]];then
                         [[ ${COMP} -gt 0 ]] && echo -en " ✅ ${V0} Successfull. ${G0}(forced)${E}\n" || echo -en " ✅ ${V0} Successfull.${E}\n"
                         rm "${FUN_LOG_DIR}/comp_stderr.log"
@@ -389,7 +390,7 @@ launch_funcheck()
         local res_compile=0
         # cases where compilation needed: (1:if -c option enable),(2:if no bin alwready found),(3:if source code newer than bin),(3:text exist and newer than binary), (4:libft.a newer than bin), (5:if cub3d newer than bin)
         if [[ ( "${COMP}" -gt 0 ) || ( ! -f "${exe}" ) || ( "${test_main}" -nt "${exe}" ) || ( -n "${test_txt}" && "${test_txt}" -nt "${exe}" ) || ( "${LIBFT_A}" -nt "${exe}" ) || ( "${CUB3D}" -nt "${exe}" ) ]];then
-            res_compile=$(${CC} ${test_main} ${LIBFT_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
+            res_compile=$(${CC} ${test_main} ${LIBFT_A} ${MLX_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
             if [[ "${res_compile}" -eq 0 ]];then
                 [[ ${COMP} -gt 0 ]] && print_in_box -t 0 -c m "${M0}1) ⚙️  Compilation: ✅ ${V0} SUCCESS. ${G0}(forced)${E}" || print_in_box -t 0 -c m "${M0}1) ⚙️  Compilation: ✅ ${V0} SUCCESS.${E}"
                 rm "${FUN_LOG_DIR}/comp_stderr.log"
@@ -457,7 +458,7 @@ exec_binary()
             exe="${BIN_DIR}/test_${fun}"
             # cases where compilation needed: (1:no binary),(2:unitests source code newer than bin),(3:text exist and newer than binary), (4:libft.a newer than bin), (5:cub3d newer than bin)
             if [[ ( "${COMP}" -gt 0 ) || ( ! -f "${exe}" ) || ( "${test_main}" -nt "${exe}" ) || ( -n "${test_txt}" && "${test_txt}" -nt "${exe}" ) || ( "${LIBFT_A}" -nt "${exe}" ) || ( "${CUB3D}" -nt "${exe}" ) ]];then
-                local res_compile=$(${CC} ${test_main} ${LIBFT_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
+                local res_compile=$(${CC} ${test_main} ${LIBFT_A} ${MLX_A} -o ${exe} > "${FUN_LOG_DIR}/comp_stderr.log" 2>&1 && echo ${?} || echo ${?})
                 if [[ "${res_compile}" -eq 0 ]];then
                     [[ ${COMP} -gt 0 ]] && echol -i 0 -c m -t 1 " ⚙️  ${BU}Compilation:${E}  ✅ ${V0} Successfull. ${G0}(forced)${E}" || echol -i 0 -c m -t 1 " ⚙️  ${BU}Compilation:${E}  ✅ ${V0} Successfull.${E} "
                     rm "${FUN_LOG_DIR}/comp_stderr.log"
