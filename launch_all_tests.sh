@@ -60,8 +60,18 @@ FUN_WITH_UNITEST=( )                                              # ☒ List of 
 HOMEMADE_FUNUSED=( )                                              # ☒ List of user created function in cub3d
 BUILTIN_FUNUSED=( )                                               # ☒ List of build-in function 
 LIBFT_FUN=( )                                                     # ☒ List of user created function in libft.a
-ALLOWED_FUN=("read" "write" "open" "close" "printf" "malloc" "free" "perror" "strerror" "exit" "gettimeofday")
+                                                                  # ☒ List of maths functions (math.h)
+MATHS_FUN=( \
+ "abs" "labs" "llabs" "fabs" "div" "ldiv" "lldiv" "fmod" "remainder" "remquo" "fma" "fmax" "fmin" "fdin" "nan" "nanf" "naml" \
+ "exp" "exp2" "exp10" "expm1" "log" "log2" "log10" "log1p" "ilogb" "logb" \
+ "sqrt" "cbrt" "hypot" "pow" "sin" "cos" "tan" "asin" "acos" "atan" "atan2" "sinh" "cosh" "tanh" "asinh" "acosh" "atanh" \
+ "erf" "erfc" "tgamma" "lgamma" "ceil" "floor" "fmod" "trunc" "round" "rint" "nearbyint" "lrint" "llrint" "lround" "llround" \
+ "frexp" "ldexp" "modf" "scalbn" "scalbln" "fpclassify" "isfinite" "isinf" "isnan" "isnormal" "signbit" "copysign" \
+)
+                                                                  # ☒ Subject's list of allowed functions
+SUB_OK_FUN=("read" "write" "open" "close" "printf" "malloc" "free" "perror" "strerror" "exit" "gettimeofday")
                                                                   # ☒ List of allowed functions
+ALLOWED_FUN=( "${SUB_OK_FUN[@]}" "${MATHS_FUN[@]}" )
 OBJ=( )                                                           # ☒ List of object.o (no main function in it)
 # add to OBJ list all '.o' files founded in cub3d/build/ folders that do not contains a main() function
 for obj in $(find ${MS_DIR}/build -type f -name '*.o');do if ! nm "${obj}" 2>/dev/null | grep -qE 'T [_]*main';then OBJ+=( "${obj}" );fi;done
