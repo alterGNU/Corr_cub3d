@@ -2,6 +2,7 @@
 #include "cub3d.h"        // is_a_valid_extension
 #include <string.h>       // strcmp
 #include <stdio.h>        // printf, fflush
+#include <math.h>         // sqrtf
 // =[ DEFINE ]==================================================================
 #define LEN 90
 #define f_name "is_a_valid_extension"

@@ -52,7 +52,8 @@ TEST_FILE=()                                                      # ☒ List of 
 for arg in $(find "${PARENT_DIR}/src" -type f -name "*.test");do TEST_FILE+=( "${arg}" );done
 FUN_NAME_PATTERN=( )                                              # ☒ List of function name pattern passed as argument
 FUN_ASKED_FOR=( )                                                 # ☒ List of function matching given pattern names as argument
-EXCLUDE_NORMI_FOLD=( "mlx" "tests" "build" "${PARENT_DIR##*\/}" ) # ☒ List of folder to be ignore by norminette
+                                                                  # ☒ List of folder to be ignore by norminette
+EXCLUDE_NORMI_FOLD=( "mlx" "tests" "build" "${PARENT_DIR##*\/}" "maps" "textures")
 FUN_TO_EXCLUDE=( "_fini" "main" "_start" "_init" "_end" "_stop" ) # ☒ List of LINUX's function names to exclude
 FUN_TO_EXCLUDE+=( "dyld_stub_binder" "stub_binder" )              # ☒ List of MacOS's function names to exclude 
 FUN_TO_TEST=( )                                                   # ☒ List of user created function specific to cub3d
@@ -65,7 +66,9 @@ MATHS_FUN=( \
  "abs" "labs" "llabs" "fabs" "div" "ldiv" "lldiv" "fmod" "remainder" "remquo" "fma" "fmax" "fmin" "fdin" "nan" "nanf" "naml" \
  "exp" "exp2" "exp10" "expm1" "log" "log2" "log10" "log1p" "ilogb" "logb" \
  "sqrt" "cbrt" "hypot" "pow" "sin" "cos" "tan" "asin" "acos" "atan" "atan2" "sinh" "cosh" "tanh" "asinh" "acosh" "atanh" \
- "erf" "erfc" "tgamma" "lgamma" "ceil" "floor" "fmod" "trunc" "round" "rint" "nearbyint" "lrint" "llrint" "lround" "llround" \
+ "sqrtf" "powf" "sinf" "cosf" "tanf" "asinf" "acosf" "atanf" "atan2f" "sinhf" "coshf" "tanhf" "asinhf" "acoshf" "atanhf" \
+ "ceilf" "floorf" "fmodf" "roundf" \
+ "erf" "erfc" "tgamma" "lgamma" "ceil" "floor" "trunc" "round" "rint" "nearbyint" "lrint" "llrint" "lround" "llround" \
  "frexp" "ldexp" "modf" "scalbn" "scalbln" "fpclassify" "isfinite" "isinf" "isnan" "isnormal" "signbit" "copysign" \
 )
                                                                   # ☒ Subject's list of allowed functions
@@ -76,7 +79,7 @@ OBJ=( )                                                           # ☒ List of 
 # add to OBJ list all '.o' files founded in cub3d/build/ folders that do not contains a main() function
 for obj in $(find ${MS_DIR}/build -type f -name '*.o');do if ! nm "${obj}" 2>/dev/null | grep -qE 'T [_]*main';then OBJ+=( "${obj}" );fi;done
 # -[ COMMANDS ]-----------------------------------------------------------------------------------------------
-CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]}"
+CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]} -lm"
 VAL_ERR=42
 VALGRIND="valgrind --leak-check=full --track-fds=yes --show-leak-kinds=all --error-exitcode=${VAL_ERR}"
 # -[ LAYOUT ]-------------------------------------------------------------------------------------------------
