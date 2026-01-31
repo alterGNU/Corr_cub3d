@@ -61,6 +61,7 @@ FUN_WITH_UNITEST=( )                                              # ☒ List of 
 HOMEMADE_FUNUSED=( )                                              # ☒ List of user created function in cub3d
 BUILTIN_FUNUSED=( )                                               # ☒ List of build-in function 
 LIBFT_FUN=( )                                                     # ☒ List of user created function in libft.a
+MLX_FUNUSED=( )                                                   # ☒ List of functions defined in libmlx.a
                                                                   # ☒ List of maths functions (math.h)
 MATHS_FUN=( \
  "abs" "labs" "llabs" "fabs" "div" "ldiv" "lldiv" "fmod" "remainder" "remquo" "fma" "fmax" "fmin" "fdin" "nan" "nanf" "naml" \
@@ -78,6 +79,8 @@ ALLOWED_FUN=( "${SUB_OK_FUN[@]}" "${MATHS_FUN[@]}" )
 OBJ=( )                                                           # ☒ List of object.o (no main function in it)
 # add to OBJ list all '.o' files founded in cub3d/build/ folders that do not contains a main() function
 for obj in $(find ${MS_DIR}/build -type f -name '*.o');do if ! nm "${obj}" 2>/dev/null | grep -qE 'T [_]*main';then OBJ+=( "${obj}" );fi;done
+OBJ_ALL=( )                                                       # ☒ List of ALL .o files (including main.o) for symbol scanning
+for obj in $(find ${MS_DIR}/build -type f -name '*.o');do OBJ_ALL+=( "${obj}" );done
 # -[ COMMANDS ]-----------------------------------------------------------------------------------------------
 CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]} -lm"
 VAL_ERR=42
@@ -211,10 +214,13 @@ check_funused()
     local args=( )
     local main_calls=( )
     local glibc_calls=( )
+    local mlx_fun=( )
     for function in "${BUILTIN_FUNUSED[@]}";do
         local fun="${function%%\@*}"
         if [[ ( "${fun}" == "_"* ) || ( "${FUN_TO_EXCLUDE[@]}" =~ "${fun}" ) ]];then
             main_calls+=( "${G0}• ${fun%%\@*}()${E}" )
+        elif [[ "${MLX_FUNUSED[@]}" =~ "${fun}" ]];then
+            mlx_fun+=( "${G0}• ${fun}()" )
         else
             if [[ "${ALLOWED_FUN[@]}" =~ "${fun}" ]];then
                 glibc_calls+=( "${V0}✓ ${fun}()${E}" )
@@ -227,6 +233,10 @@ check_funused()
     if [[ "${#main_calls[@]}" -ne 0 ]];then
         echo "🔹 ${BCU}main() built_in calls:${E}"
         for fun in "${main_calls[@]}";do echo "   ${fun}";done
+        if [[ "${#mlx_fun[@]}" -ne 0 ]];then
+            echo "🔹 ${BCU}MLX functions:${E}"
+            for fun in "${mlx_fun[@]}";do echo "   ${fun}";done
+        fi
         echo "🔹 ${BCU}GLIBC built_in calls:${E}"
         for fun in "${glibc_calls[@]}";do echo "   ${fun}";done
     else
@@ -549,7 +559,7 @@ display_resume()
         local KO_BI=( )
         for function in "${BUILTIN_FUNUSED[@]}";do
             local fun="${function%%\@*}"
-            if [[ "${fun}" != "_"* ]];then
+            if [[ "${fun}" != "_"* && ! "${MLX_FUNUSED[@]}" =~ "${fun}" ]];then
                 [[ "${ALLOWED_FUN[@]}" =~ "${fun}" ]] && OK_BI+=( " ${fun} " ) || KO_BI+=( "       ${R0}✗ ${fun}() ${Y0}➽ ${M0}${function##*\@}${E} " )
             fi
         done
@@ -700,37 +710,45 @@ if file "${LIBFT_A}" | grep -qE 'relocatable|executable|shared object|ar archive
 else
     echo -e "LIBFT_A=${BC0}${LIBFT_A}${E} is not an object file\033[m"
 fi
+# -[ SET MLX_FUNUSED ]----------------------------------------------------------------------------------------
+if file "${MLX_A}" | grep -qE 'relocatable|executable|shared object|ar archive';then
+    for fun in $(nm -g "${MLX_A}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+        if [[ "$(uname)" == "Linux" ]];then
+            [[ ! "${MLX_FUNUSED[@]}" =~ "${fun}" ]] && MLX_FUNUSED+=("${fun}")
+        else
+            [[ ! "${MLX_FUNUSED[@]}" =~ "${fun#*_}" ]] && MLX_FUNUSED+=("${fun#*_}")
+        fi
+    done
+else
+    echo -e "MLX_A=${BC0}${MLX_A}${E} is not an object file\033[m"
+fi
 # -[ SET HOMEMADE_FUNUSED & BUILTIN_FUNUSED ]-----------------------------------------------------------------
-if file "${PROGRAMM}" | grep -qE 'relocatable|executable|shared object|ar archive';then
+if [[ ${#OBJ_ALL[@]} -ne 0 ]];then
     if [[ "$(uname)" == "Linux" ]];then
-        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
-            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun}" && " ${fun} " != " main " ]];then
-                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
-            else
-                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]] && HOMEMADE_FUNUSED+=( "${fun}" )
-            fi
+        # First collect all defined (T) symbols from your objects
+        for fun in $(nm -g "${OBJ_ALL[@]}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+            [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]] && HOMEMADE_FUNUSED+=( "${fun}" )
         done
-        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
-            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" ]];then
+        # Then collect undefined (U) symbols, excluding what's already in HOMEMADE or LIBFT
+        for fun in $(nm -g "${OBJ_ALL[@]}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
+            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun}" && ! "${LIBFT_FUN[@]}" =~ "${fun}" ]];then
                 [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun}" ]] && BUILTIN_FUNUSED+=( "${fun}" )
             fi
         done
     else
-        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
-            if [[ "${FUN_TO_EXCLUDE[@]}" =~ "${fun#*_}" && " ${fun#*_} " != " main " ]];then
-                [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
-            else
-                [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]] && HOMEMADE_FUNUSED+=( "${fun#*_}" )
-            fi
+        # First collect all defined (T) symbols from your objects
+        for fun in $(nm -g "${OBJ_ALL[@]}" 2>/dev/null | grep " T " | awk '{print $NF}' | sort | uniq);do
+            [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]] && HOMEMADE_FUNUSED+=( "${fun#*_}" )
         done
-        for fun in $(nm -g "${PROGRAMM}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
-            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" ]];then
+        # Then collect undefined (U) symbols, excluding what's already in HOMEMADE or LIBFT
+        for fun in $(nm -g "${OBJ_ALL[@]}" 2>/dev/null | grep " U " | awk '{print $NF}' | sort | uniq);do
+            if [[ ! "${HOMEMADE_FUNUSED[@]}" =~ "${fun#*_}" && ! "${LIBFT_FUN[@]}" =~ "${fun#*_}" ]];then
                 [[ ! "${BUILTIN_FUNUSED[@]}" =~ "${fun#*_}" ]] && BUILTIN_FUNUSED+=( "${fun#*_}" )
             fi
         done
     fi
 else
-    echo -e "${BC0}${PROGRAMM}${E} is not an object file\033[m"
+    echo -e "${BC0}No object files found in build/ to scan.${E}"
 fi
 # -[ SET FUN_TO_TEST && FUN_WITH_UNITEST ]--------------------------------------------------------------------
 if [[ ${#FUN_NAME_PATTERN[@]} -eq 0 ]];then
