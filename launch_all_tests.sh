@@ -82,7 +82,7 @@ for obj in $(find ${MS_DIR}/build -type f -name '*.o');do if ! nm "${obj}" 2>/de
 OBJ_ALL=( )                                                       # ☒ List of ALL .o files (including main.o) for symbol scanning
 for obj in $(find ${MS_DIR}/build -type f -name '*.o');do OBJ_ALL+=( "${obj}" );done
 # -[ COMMANDS ]-----------------------------------------------------------------------------------------------
-CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]} -lm"
+CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]} -L${MS_DIR}/mlx -lmlx -lX11 -lXext -L${MS_DIR}/libft/lib -lft -lm"
 VAL_ERR=42
 VALGRIND="valgrind --leak-check=full --track-fds=yes --show-leak-kinds=all --error-exitcode=${VAL_ERR}"
 # -[ LAYOUT ]-------------------------------------------------------------------------------------------------
