@@ -87,7 +87,7 @@ for obj in $(find ${MS_DIR}/build -type f -name '*.o');do OBJ_ALL+=( "${obj}" );
 # -[ COMMANDS ]-----------------------------------------------------------------------------------------------
 CC="cc -Wall -Wextra -Werror -I${MS_DIR}/include -I${MS_DIR}/libft/include -I${MS_DIR}/mlx ${OBJ[@]} -L${MS_DIR}/mlx -lmlx -lX11 -lXext -L${MS_DIR}/libft/lib -lft -lm"
 VAL_ERR=42
-VALGRIND="valgrind --leak-check=full --track-fds=yes --show-leak-kinds=all --error-exitcode=${VAL_ERR}"
+VALGRIND="valgrind --leak-check=full --track-fds=yes --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=${VAL_ERR}"
 # -[ LAYOUT ]-------------------------------------------------------------------------------------------------
 LEN=100                                                            # ☑ Width of the box
 # -[ COLORS ]-------------------------------------------------------------------------------------------------
@@ -857,11 +857,11 @@ launch_cub3d()
     else
         echo -e "${BC0}⤷${E} 🚀 ${GU}Execution   : ${V0} ✅ PASS${E}"
         ${VALGRIND} ${PROGRAMM} "${1}" > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            echo -e "${BC0}⤷${E} 🚰 ${GU}Valgrind    : ${V0} ✅ PASS${E}"
-        else
+        if [ $? -eq ${VAL_ERR} ]; then
             echo -e "${BC0}⤷${E} 🚰 ${GU}Valgrind    : ${R0} ❌ FAIL${E}"
             return 1
+        else
+            echo -e "${BC0}⤷${E} 🚰 ${GU}Valgrind    : ${V0} ✅ PASS${E}"
         fi
     fi
     return 0
