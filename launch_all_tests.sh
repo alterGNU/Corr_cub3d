@@ -13,6 +13,7 @@
 #     |$EXEC | +e --exec     | -e --no-exec     | Exec the binaries files       |
 #     |$FUNC | +f --funcheck | -f --no-funcheck | Run funcheck tooks            |
 #     |$HELP | +h --help     | -h --no-help     | Display usage                 |
+#     |$MAPS | +m --maps     | -m --no-maps     | Run tests on all unvalid maps |
 #     |$NORM | +n --norm     | -n --no-norm     | Run norminette tools          |
 #     |$OPTI | +o --opti     | -o --no-opti     | Select only fun with unitests |
 #     |$UNIT | +u --unitests | -u --no-unitests | Run cub3d's fun. unitests     |
@@ -25,6 +26,7 @@ ARGS=()                                                           # ☒ Copy of 
 for arg in "${@}";do ARGS+=( "${arg}" );done
 SCRIPTNAME=${0##*\/}                                              # ☒ Script's name (no path)
 PARENT_DIR=$(cd $(dirname ${0}) && pwd)                           # ☒ Name of parent directory (TEST_DIR)
+MAPS_DIR="${PARENT_DIR}/docs/invalid_cub_files"                   # ☒ Name of the unvalid maps directory
 MS_DIR=$(cd $(dirname ${PARENT_DIR}) && pwd)                      # ☒ Name of great-parent directory (CUB3D_DIR)
 PROGRAMM="${MS_DIR}/cub3D"                                        # ☒ Object's name to test (here our executable)
 LOG_DIR="${PARENT_DIR}/log/$(date +%Y_%m_%d/%Hh%Mm%Ss)"           # ☒ Name of the log folder
@@ -43,6 +45,7 @@ DLOG=0                                                            # ☒ Display 
 EXEC=0                                                            # ☒ Exec the binaries files       
 FUNC=0                                                            # ☒ Run funcheck tools            
 HELP=0                                                            # ☒ Display usage                 
+MAPS=1                                                            # ☒ Run tests on all unvalid maps
 NORM=1                                                            # ☒ Run norminette tools          
 OPTI=0                                                            # ☒ Select only fun with unitests 
 UNIT=1                                                            # ☒ Run unitests                  
@@ -113,9 +116,9 @@ source ${BSL_DIR}/src/print.sh
 script_usage()
 {
     local exit_value=0
-    local entete="${BU}Usage:${R0}  \`${V0}./${SCRIPTNAME} ${M0}[+-][a,b,c,d,e,f,h,n,o,u,v] [<name_pattern>, ...]${R0}\`${E}"
+    local entete="${BU}Usage:${R0}  \`${V0}./${SCRIPTNAME} ${M0}[+-][a,b,c,d,e,f,h,m,n,o,u,v] [<name_pattern>, ...]${R0}\`${E}"
     if [[ ${#} -eq 2 ]];then
-        local entete="${RU}[Err:${2}] Wrong usage${R0}: ${1}${E}\n${BU}Usage:${R0}  \`${V0}./${SCRIPTNAME} ${M0}[+-][a,b,c,d,e,f,h,n,o,u,v] [<name_pattern>, ...]${R0}\`${E}"
+        local entete="${RU}[Err:${2}] Wrong usage${R0}: ${1}${E}\n${BU}Usage:${R0}  \`${V0}./${SCRIPTNAME} ${M0}[+-][a,b,c,d,e,f,h,m,n,o,u,v] [<name_pattern>, ...]${R0}\`${E}"
         local exit_value=${2}
     fi
     echo -e "${entete}"
@@ -133,6 +136,7 @@ script_usage()
     echo -e "    |   ${BC0}\$EXEC${E}   | ${V0}+${M0}e${E}, ${V0}--${M0}exec      ${E}| ${R0}-${M0}e ${E},${R0}--no-${M0}exec     ${E}| Exec the binaries files              |"
     echo -e "    |   ${BC0}\$FUNC${E}   | ${V0}+${M0}f${E}, ${V0}--${M0}funcheck  ${E}| ${R0}-${M0}f ${E},${R0}--no-${M0}funcheck ${E}| Run funcheck tooks                   |"
     echo -e "    |   ${BC0}\$HELP${E}   | ${V0}+${M0}h${E}, ${V0}--${M0}help      ${E}| ${R0}-${M0}h ${E},${R0}--no-${M0}help     ${E}| Display usage                        |"
+    echo -e "    |   ${BC0}\$MAPS${E}   | ${V0}+${M0}m${E}, ${V0}--${M0}maps      ${E}| ${R0}-${M0}m ${E},${R0}--no-${M0}maps     ${E}| Run tests on all unvalid maps        |"
     echo -e "    |   ${BC0}\$NORM${E}   | ${V0}+${M0}n${E}, ${V0}--${M0}norm      ${E}| ${R0}-${M0}n ${E},${R0}--no-${M0}norm     ${E}| Run norminette tools                 |"
     echo -e "    |   ${BC0}\$OPTI${E}   | ${V0}+${M0}o${E}, ${V0}--${M0}opti      ${E}| ${R0}-${M0}o ${E},${R0}--no-${M0}opti     ${E}| Select only fun with unitests        |"
     echo -e "    |   ${BC0}\$UNIT${E}   | ${V0}+${M0}u${E}, ${V0}--${M0}unitests  ${E}| ${R0}-${M0}u ${E},${R0}--no-${M0}unitests ${E}| Run cub3d's functions unitests       |"
@@ -189,6 +193,7 @@ display_start()
     [[ ${EXEC} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}EXEC${Y0} :Exec the binaries files       : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}EXEC${Y0} :Exec the binaries files       : ${R0}✘ Desable${E}" )
     [[ ${FUNC} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}FUNC${Y0} :Run funcheck on funcheck files: ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}FUNC${Y0} :Run funcheck on funcheck files: ${R0}✘ Desable${E}" )
     [[ ${HELP} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}HELP${Y0} :Display usage                 : ${R0}✘ Desable${E}" )
+    [[ ${MAPS} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}MAPS${Y0} :Run tests on all unvalid maps : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}MAPS${Y0} :Run tests on all unvalid maps : ${R0}✘ Desable${E}" )
     [[ ${NORM} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}NORM${Y0} :Run norminette tools          : ${R0}✘ Desable${E}" )
     [[ ${OPTI} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}OPTI${Y0} :Select only fun with unitests : ${R0}✘ Desable${E}" )
     [[ ${UNIT} -gt 0 ]] && OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests     : ${V0}✓ Enable${E}" ) || OPTIONS+=( "     🔸 ${YU}UNIT${Y0} :Run cub3d's fun. unitests     : ${R0}✘ Desable${E}" )
@@ -657,6 +662,8 @@ for arg in "${ARGS[@]}";do
             --[Nn]o-[fF]uncheck ) FUNC=$(max 0 $(( FUNC - 1 ))) ;;
             --[Hh]elp ) HELP=$(( HELP + 1 )) ;;
             --[Nn]o-[Hh]elp ) HELP=$(max 0 $(( HELP + 1 ))) ;;
+            --[Mm]aps ) MAPS=$(( MAPS + 1 )) ;;
+            --[Nn]o-[Mm]aps ) MAPS=$(max 0 $(( MAPS - 1 ))) ;;
             --[Nn]orm ) NORM=$(( NORM + 1 )) ;;
             --[Nn]o-[Nn]orm ) NORM=$(max 0 $(( NORM - 1 ))) ;;
             --[Oo]pti ) OPTI=$(( OPTI + 1 )) ;;
@@ -672,13 +679,14 @@ for arg in "${ARGS[@]}";do
         for i in $(seq 1 $((${#arg} - 1)));do
             char="${arg:i:1}"
             case "${char}" in
-                [Aa] ) [[ "${symb}" == "+" ]] && { BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;NORM=1;OPTI=1;UNIT=1;VALG=1;} || { BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;NORM=0;OPTI=0;UNIT=0;VALG=0;} ;;
+                [Aa] ) [[ "${symb}" == "+" ]] && { BUIN=1;COMP=1;DLOG=1;EXEC=1;FUNC=1;MAPS=1;NORM=1;OPTI=1;UNIT=1;VALG=1;} || { BUIN=0;COMP=0;DLOG=0;EXEC=0;FUNC=0;MAPS=0;NORM=0;OPTI=0;UNIT=0;VALG=0;} ;;
                 [Bb] ) [[ "${symb}" == "+" ]] && BUIN=$(( BUIN + 1 )) || BUIN=$(max 0 $(( BUIN - 1 ))) ;;
                 [Cc] ) [[ "${symb}" == "+" ]] && COMP=$(( COMP + 1 )) || COMP=$(max 0 $(( COMP - 1 ))) ;;
                 [Dd] ) [[ "${symb}" == "+" ]] && DLOG=$(( DLOG + 1 )) || DLOG=$(max 0 $(( DLOG - 1 ))) ;;
                 [Ee] ) [[ "${symb}" == "+" ]] && EXEC=$(( EXEC + 1 )) || EXEC=$(max 0 $(( EXEC - 1 ))) ;;
                 [Ff] ) [[ "${symb}" == "+" ]] && FUNC=$(( FUNC + 1 )) || FUNC=$(max 0 $(( FUNC - 1 ))) ;;
                 [Hh] ) [[ "${symb}" == "+" ]] && HELP=$(( HELP + 1 )) || HELP=$(max 0 $(( HELP - 1 ))) ;;
+                [Mm] ) [[ "${symb}" == "+" ]] && MAPS=$(( MAPS + 1 )) || MAPS=$(max 0 $(( MAPS - 1 ))) ;;
                 [Nn] ) [[ "${symb}" == "+" ]] && NORM=$(( NORM + 1 )) || NORM=$(max 0 $(( NORM - 1 ))) ;;
                 [Oo] ) [[ "${symb}" == "+" ]] && OPTI=$(( OPTI + 1 )) || OPTI=$(max 0 $(( OPTI - 1 ))) ;;
                 [Uu] ) [[ "${symb}" == "+" ]] && UNIT=$(( UNIT + 1 )) || UNIT=$(max 0 $(( UNIT - 1 ))) ;;
@@ -838,6 +846,45 @@ if [[ ${EXEC} -gt 0 ]];then
             exec_binary "FUN_TO_TEST"
         fi
     fi
+fi
+
+launch_cub3d()
+{
+    ${PROGRAMM} "${1}" -tm
+    if [ $? -eq 0 ]; then
+        echo -e "${BC0}⤷${E} 🚀 ${GU}Execution   : ${R0} ❌ FAIL${E}"
+        return 1
+    else
+        echo -e "${BC0}⤷${E} 🚀 ${GU}Execution   : ${V0} ✅ PASS${E}"
+        ${VALGRIND} ${PROGRAMM} "${1}" > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo -e "${BC0}⤷${E} 🚰 ${GU}Valgrind    : ${V0} ✅ PASS${E}"
+        else
+            echo -e "${BC0}⤷${E} 🚰 ${GU}Valgrind    : ${R0} ❌ FAIL${E}"
+            return 1
+        fi
+    fi
+    return 0
+}
+
+check_unvalid_maps()
+{
+    for file in ${MAPS_DIR}/*.cub;do
+        exec_anim_in_box "launch_cub3d ${file}" "$(basename \"${file}\")"
+    done
+}
+
+# -[ STEP 6 | CHECK-MAPS ]------------------------------------------------------------------------------------
+if [[ ${MAPS} -gt 0 ]];then
+    print_in_box -t 2 -c y \
+    " ${Y0}                    ___ _           _     ___             _                      ${E}" \
+    " ${Y0}                   / __| |_  ___ __| |__ | _ \__ _ _ _ __(_)_ _  __ _            ${E}" \
+    " ${Y0}                  | (__| ' \/ -_/ _| / / |  _/ _' | '_(_-| | ' \/ _' |           ${E}" \
+    " ${Y0}                   \___|_||_\___\__|_\_\ |_| \__,_|_| /__|_|_||_\__, |           ${E}" \
+    " ${Y0}                                                                |___/            ${E}"
+    echo "chmod -r ${PARENT_DIR}/docs/images/unreadable.xpm"
+    chmod -r ${PARENT_DIR}/docs/images/unreadable.xpm
+    check_unvalid_maps ${MAPS_DIR}
 fi
 # =[ STOP ]===================================================================================================
 display_resume "cub3d's tests"
